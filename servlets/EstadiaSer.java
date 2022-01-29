@@ -135,8 +135,6 @@ public class EstadiaSer extends HttpServlet {
                                 }
                             }else{
                                 salida.write("203-duplicated"); //duplicado y regresamos el mensaje a la pagina
-                                //estadia.actualizaCoordinadorAsesor(cveAseCoor, cveAlumno, campo); //actualizamos perfil y agregamos asesor
-                                //salida.write("201-updated");
                             }
                         }else{
                                 salida.write("202-invalid"); //datos invalidos
@@ -191,32 +189,35 @@ public class EstadiaSer extends HttpServlet {
                             estadia.ActualizaDescripcion(cveEstadiaArchivo, info_proyecto);
                         }
                         switch (status){
-                            case 3:
+                            case 1:
+                                
+                                break;
+                            case 2:
                                 //de aqui se envia a los directores
                                 int dire = estadia.getCveArea(cveAlumnoGrupo);
                                 estadia.enviaCorreoAlumno(dire);
                                 estadia.enviaCorreoEstado(cvePersonaAlumno, cvePersona, "aprobado");
                                 salida.write("208-validated");
                                 break;
-                            case 4:
+                            case 3:
                                 //de aqui se envia a los servicios escolares
                                 estadia.enviaCorreoEscolares();
                                 salida.write("208-validated");
                                 break;
-                            case 5:
+                            case 4:
                                 //enviar correo alumno
                                 Persona persona = new Persona(cvePersonaAlumno); //se construye el alumno
                                 int cveDocumento=0;
                                 if (nivelEstudio==1) { //documentos de nivel de TSU
-                                    if (cveTipoArchivo==1) { //memoria de estadia
+                                    if (cveTipoArchivo==2) { //memoria de estadia
                                         cveDocumento=28;
-                                    }else if(cveTipoArchivo==2){ //carta de conclusion
+                                    }else if(cveTipoArchivo==1){ //carta de conclusion
                                         cveDocumento=27;
                                     }
                                 }else{ //documentos de nivel de ingenieria-licenciatura
-                                    if (cveTipoArchivo==1) { //memoria de estadia
+                                    if (cveTipoArchivo==2) { //memoria de estadia
                                         cveDocumento=31;
-                                    }else if (cveTipoArchivo==2){ //carta de conclusion
+                                    }else if (cveTipoArchivo==1){ //carta de conclusion
                                         cveDocumento=30;
                                     }
                                 }
@@ -224,15 +225,15 @@ public class EstadiaSer extends HttpServlet {
                                 String s = persona.personaDocumento(cveDocumento, true, cf.anhoHoy, false);
                                 salida.write("208-validated");
                                 break;
+                            case 5:
+                                estadia.enviaCorreoEstado(cvePersonaAlumno, cvePersona, "rechazado");
+                                salida.write("207-rejected");
+                                break;
+                            case 6:
+                                estadia.enviaCorreoEstado(cvePersonaAlumno, cvePersona, "rechazado");
+                                salida.write("207-rejected");
+                                break;
                             case 7:
-                                estadia.enviaCorreoEstado(cvePersonaAlumno, cvePersona, "rechazado");
-                                salida.write("207-rejected");
-                                break;
-                            case 8:
-                                estadia.enviaCorreoEstado(cvePersonaAlumno, cvePersona, "rechazado");
-                                salida.write("207-rejected");
-                                break;
-                            case 9:
                                 estadia.enviaCorreoEstado(cvePersonaAlumno, cvePersona, "rechazado");
                                 salida.write("207-rejected");
                                 break;

@@ -38,7 +38,6 @@ public class Persona implements Persistente, Serializable{
     public Persona() {
         this.siest = new Datos();
         tipoSexo = new TipoSexo();
-        //estadoCivil = new EstadoCivil();
     }
 
     public Persona(int cvePersona) throws ErrorGeneral {
@@ -73,8 +72,8 @@ public class Persona implements Persistente, Serializable{
     public void construir() {
         try {
             ArrayList<CustomHashMap> datosPersona = siest.ejecutarConsulta("SELECT p.cve_persona, p.nombre, "
-                    + "p.apellido_paterno, p.apellido_materno, COALESCE(TO_CHAR(dp.fecha_nacimiento, 'YYYY-MM-DD'), '2020-06-11')AS fecha_nacimiento, COALESCE(dp.curp, 'AAAA000000')AS curp, COALESCE(ts.nombre, '') AS sexo, COALESCE(ts.cve_tipo_sexo, 1)AS cve_tipo_sexo, "
-                    + "COALESCE(cve_estado_civil, 1)AS cve_estado_civil, COALESCE(df.RFC, 'AAAA000000AAA')AS rfc, COALESCE(dp.cve_asentamiento_nacio, 543)AS asentamiento_nacio "
+                    + "p.apellido_paterno, p.apellido_materno, ISNULL(dp.fecha_nacimiento, '2020-06-11')AS fecha_nacimiento, ISNULL(dp.curp, 'AAAA000000')AS curp, ISNULL(ts.nombre, '') AS sexo, ISNULL(ts.cve_tipo_sexo, 1)AS cve_tipo_sexo, "
+                    + "ISNULL(cve_estado_civil, 1)AS cve_estado_civil, ISNULL(df.RFC, 'AAAA000000AAA')AS rfc, ISNULL(dp.cve_asentamiento_nacio, 543)AS asentamiento_nacio "
                     + "FROM persona p "
                     + "LEFT JOIN dato_personal dp ON dp.cve_persona=p.cve_persona "
                     + "LEFT JOIN tipo_sexo ts ON ts.cve_tipo_sexo=dp.cve_tipo_sexo "
@@ -110,8 +109,8 @@ public class Persona implements Persistente, Serializable{
     public String getDomicilio() {
         String domicilio = "Conocido, Santiago Ixcuintla";
         try {
-            ArrayList<CustomHashMap> datos = siest.ejecutarConsulta("SELECT COALESCE(CONCAT('C. ', d.calle), 'C. Conocida')AS calle,COALESCE(CONCAT('#', d.numero), '#0')AS numero, "
-                    + "d.colonia, COALESCE(a.nombre, 'Santiago Ixc')AS localidad "
+            ArrayList<CustomHashMap> datos = siest.ejecutarConsulta("SELECT ISNULL('C. '+d.calle, 'C. Conocida')AS calle,ISNULL('#'+d.numero, '#0')AS numero, "
+                    + "d.colonia, ISNULL(a.nombre, 'Santiago Ixc')AS localidad "
                     + "FROM persona p "
                     + "LEFT JOIN domicilio_persona dp ON dp.cve_persona=p.cve_persona "
                     + "LEFT JOIN domicilio d ON d.cve_domicilio=dp.cve_domicilio "
@@ -145,7 +144,7 @@ public class Persona implements Persistente, Serializable{
         ArrayList<CustomHashMap> data = siest.ejecutarConsulta("SELECT p.nombre AS puesto "
                 + "FROM personal per "
                 + "INNER JOIN puesto p ON p.cve_puesto=per.cve_puesto "
-                + "WHERE per.activo=true AND cve_persona="+this.cvePersona);
+                + "WHERE per.activo=1 AND cve_persona="+this.cvePersona);
         if(!data.isEmpty()){
             puesto = data.get(0).getString("puesto");
         }
@@ -155,7 +154,7 @@ public class Persona implements Persistente, Serializable{
         String oficina = "Sin oficina";
          ArrayList<CustomHashMap> data = siest.ejecutarConsulta("SELECT a.nombre "
                  + "FROM area_responsable ar "
-                 + "INNER JOIN area a ON a.cve_area=ar.cve_area WHERE cve_persona="+this.cvePersona+" AND ar.activo=true");
+                 + "INNER JOIN area a ON a.cve_area=ar.cve_area WHERE cve_persona="+this.cvePersona+" AND ar.activo=1");
          if(!data.isEmpty()){
              oficina = data.get(0).getString("nombre");
          }
@@ -164,17 +163,16 @@ public class Persona implements Persistente, Serializable{
     
     public String getNombreUsuario() throws ErrorGeneral{
         String user = "No tiene";
-         ArrayList<CustomHashMap> data = siest.ejecutarConsulta("SELECT nombre_usuario "
+         ArrayList<CustomHashMap> data = siest.ejecutarConsulta("SELECT TOP (1) nombre_usuario "
                  + "FROM usuario "
-                 + "WHERE activo=true AND cve_persona="+this.cvePersona+" "
-                         + "LIMIT 1");
+                 + "WHERE activo=1 AND cve_persona="+this.cvePersona+" ");
          if(!data.isEmpty()){
              user = data.get(0).getString("nombre_usuario");
          }
         return user;
     }
     public String getNivelEstudioMasNombre() throws ErrorGeneral{
-         ArrayList<CustomHashMap> data = siest.ejecutarConsulta("SELECT COALESCE(ne.abreviatura, 'Lic')AS nivel_estudio FROM persona p "
+         ArrayList<CustomHashMap> data = siest.ejecutarConsulta("SELECT ISNULL(ne.abreviatura, 'Lic')AS nivel_estudio FROM persona p "
                  + "LEFT JOIN nivel_estudio ne ON ne.cve_nivel_estudio=p.cve_nivel_estudio "
                  + "WHERE p.cve_persona="+this.cvePersona);
          if(!data.isEmpty()){
@@ -186,9 +184,9 @@ public class Persona implements Persistente, Serializable{
 
     public ArrayList<CustomHashMap> getDatosDomicilio() throws ErrorGeneral {
         ArrayList<CustomHashMap> datosDomicilio = siest.ejecutarConsulta("SELECT p.cve_pais, e.cve_estado, m.cve_municipio, a.cve_asentamiento, "
-                + "COALESCE(d.cve_domicilio, '0')AS cve_domicilio, COALESCE(d.calle, '')AS calle, COALESCE(d.numero, '0')AS numero, "
-                + "COALESCE(d.colonia, '')AS colonia, COALESCE(d.comentarios, '')AS comentarios, COALESCE(d.referencias, '')AS referencias, "
-                + "COALESCE(d.horario, '')AS horario "
+                + "ISNULL(d.cve_domicilio, 0)AS cve_domicilio, ISNULL(d.calle, '')AS calle, ISNULL(d.numero, 0)AS numero, "
+                + "ISNULL(d.colonia, '')AS colonia, ISNULL(d.comentarios, '')AS comentarios, ISNULL(d.referencias, '')AS referencias, "
+                + "ISNULL(d.horario, '')AS horario "
                 + "FROM domicilio d "
                 + "LEFT JOIN domicilio_persona dp ON dp.cve_domicilio=d.cve_domicilio "
                 + "LEFT JOIN asentamiento a ON a.cve_asentamiento = d.cve_asentamiento "
@@ -246,18 +244,15 @@ public class Persona implements Persistente, Serializable{
 
         if (person.isEmpty()) {
             //Insertamos
-             sql = "do $$ "
-                     + "DECLARE cveDatosFiscales INT := 0;"
-                     + "BEGIN "
-                     + "INSERT INTO datos_fiscales(rfc, fecha_alta, activo) VALUES('"+rfc+"', NOW(), true); "
-                     + "cveDatosFiscales = (SELECT MAX(cve_datos_fiscales)AS cve FROM datos_fiscales); "
+            sql = "INSERT INTO datos_fiscales(rfc, fecha_alta, activo) VALUES('" + rfc + "', GETDATE(), 'True'); "
+                    + "DECLARE @cveDatosFiscales AS INTEGER; "
+                    + "SET @cveDatosFiscales = (SELECT IDENT_CURRENT('datos_fiscales')); "
                      + "INSERT INTO datos_fiscales_persona(cve_datos_fiscales, cve_persona, fecha_alta, activo) "
-                     + "VALUES(cveDatosFiscales , "+cvePersona+", NOW(), true); "
-                     + "END $$;";
+                    + "VALUES(@cveDatosFiscales , " + cvePersona + ", GETDATE(), 'True'); ";
         } else {
             //Actualizamos
             int cveDatoFiscal = person.get(0).getInt("cve_datos_fiscales");
-            sql = "UPDATE datos_fiscales SET rfc='" + rfc + "' WHERE cve_datos_fiscales=" + cveDatoFiscal;
+            sql = "UPDATE datos_fiscales SET RFC='" + rfc + "' WHERE cve_datos_fiscales=" + cveDatoFiscal;
         }
         siest.iniciarTransaccion();
         siest.serializarSentencia(sql);
@@ -272,16 +267,12 @@ public class Persona implements Persistente, Serializable{
 
         //Insertamos
         if (person.isEmpty()) {
-            sql = "do $$ "
-                     + "DECLARE cveDomicilio INT := 0;"
-                     + "BEGIN "
-                    + "INSERT INTO domicilio(cve_asentamiento, cve_tipo_domicilio, calle, numero, colonia, comentarios, referencias, horario, activo) "
+            sql = "INSERT INTO domicilio(cve_asentamiento, cve_tipo_domicilio, calle, numero, colonia, comentarios, referencias, horario, activo) "
                     + "VALUES(" + cveLocalidad + ", 2, '" + calle + "', '" + numero + "', '" + colonia + "', '" + comentarios + "', "
-                    + "'" + referencia + "', '" + horario + "', true); "
-                    + "cveDomicilio = (SELECT MAX(cve_domicilio)AS cve FROM domicilio); "
+                    + "'" + referencia + "', '" + horario + "', 'True'); "
+                    + "DECLARE @cveDomicilio AS INTEGER; SET @cveDomicilio = (SELECT IDENT_CURRENT('domicilio')); "
                     + "INSERT INTO domicilio_persona(cve_domicilio, cve_persona, fecha_alta, activo) "
-                    + "VALUES(cveDomicilio, " + cvePersona + ", NOW(), true);"
-                    + "END $$; ";
+                    + "VALUES(@cveDomicilio, " + cvePersona + ", GETDATE(), 'True'); ";
         } else {
             //actualizamos
             int cveDomicilio = person.get(0).getInt("cve_domicilio");
@@ -301,7 +292,7 @@ public class Persona implements Persistente, Serializable{
                 + "WHERE cve_persona=" + cvePersona + " AND cve_comunicacion=1");
         if (person.isEmpty()) {
             sql = "INSERT INTO persona_comunicacion(cve_persona, cve_comunicacion, dato, comentarios, activo) "
-                    + "VALUES(" + cvePersona + ", 1, '" + telefono + "', 'Teléfono de la persona', true); ";
+                    + "VALUES(" + cvePersona + ", 1, '" + telefono + "', 'Teléfono de la persona', 'True'); ";
         } else {
             int cvePersonaComunicacion = person.get(0).getInt("cve_persona_comunicacion");
             sql = "UPDATE persona_comunicacion SET dato='" + telefono + "' "
@@ -318,7 +309,7 @@ public class Persona implements Persistente, Serializable{
                 + "WHERE cve_persona=" + cvePersona + " AND cve_comunicacion=4");
         if (person.isEmpty()) {
             sql = "INSERT INTO persona_comunicacion(cve_persona, cve_comunicacion, dato, comentarios, activo) "
-                    + "VALUES(" + cvePersona + ", 4, '" + email + "', 'Email de la persona', 'True'); \n";
+                    + "VALUES(" + cvePersona + ", 4, '" + email + "', 'Email de la empresa', 'True'); \n";
         } else {
             int cvePersonaComunicacion = person.get(0).getInt("cve_persona_comunicacion");
             sql = "UPDATE persona_comunicacion SET dato='" + email + "' "
@@ -353,7 +344,7 @@ public class Persona implements Persistente, Serializable{
             } else {
                 siest.iniciarTransaccion();
                 siest.serializarSentencia("INSERT INTO documento_persona(cve_persona, cve_documento, prestado, activo, anio_expedicion, legalizado) "
-                        + "VALUES(" + this.cvePersona + "," + cveDocumento + ",false, true, " + anio + ", '" + legalizado + "')");
+                        + "VALUES(" + this.cvePersona + "," + cveDocumento + ",0, 1, " + anio + ", '" + legalizado + "')");
                 siest.finalizarTransaccion();
                 salida = "ok-save";
             }
@@ -462,9 +453,6 @@ public class Persona implements Persistente, Serializable{
         return cvePersona;
     }
 
-    /*  public String getEstadoCivil() {
-     return estadoCivil;
-     } */
     public Double getEstatura() {
         return datosMedicos.getEstatura();
     }
@@ -591,7 +579,7 @@ public class Persona implements Persistente, Serializable{
     public boolean existe() throws ErrorGeneral {
         boolean existe = false;
         try {
-            existe = new Datos().devuelveRegistros("SELECT cve_persona "
+            existe = siest.devuelveRegistros("SELECT cve_persona "
                     + " FROM persona WHERE "
                     + " nombre = '" + getNombre() + "'"
                     + " AND apellido_paterno = '" + getApellidoPaterno() + "'"

@@ -25,22 +25,21 @@
         response.sendRedirect("login.jsp");
     } else {
 
-        Usuario usuario = (Usuario) sesion.getAttribute("usuario"); //se obtiene el usuario
+        Usuario usuario = (Usuario) sesion.getAttribute("usuario");
         int cvePersona;
         try {
-            cvePersona = (Integer) sesion.getAttribute("cvePersona"); //se obtiene la clave persona
+            cvePersona = (Integer) sesion.getAttribute("cvePersona");
         } catch (Exception e) {
             cvePersona = usuario.getCvePersona(); 
         }
         
-//       a partir de aqui comienza el codigo
         Datos siest = new Datos();
         ArrayList<CustomHashMap> isAlumno = siest.ejecutarConsulta("SELECT cve_alumno "
-                + "FROM alumno a WHERE a.cve_persona=" + cvePersona + " AND activo=true");
+                + "FROM alumno a WHERE a.cve_persona=" + cvePersona + " AND activo=1");
         if (!isAlumno.isEmpty()) {
             int cveAlumno = isAlumno.get(0).getInt("cve_alumno");
             
-            ArrayList<CustomHashMap> estadia = siest.ejecutarConsulta("SELECT CAST(COUNT(cve_estadia_alumno) AS INTEGER) AS contar "
+            ArrayList<CustomHashMap> estadia = siest.ejecutarConsulta("SELECT COUNT(cve_asesor) AS contar "
                     + "FROM estadia_alumno ea "
                     + "INNER JOIN alumno_grupo ag on ea.cve_alumno_grupo=ag.cve_alumno_grupo "
                     + "WHERE cve_alumno="+cveAlumno);
@@ -49,34 +48,36 @@
             if (contar_estadia>0) { //verificamos que el usuario ya esta dado de alta como estudiante de estadia
                     
             ArrayList<CustomHashMap> entregas = siest.ejecutarConsulta("SELECT CAST(ee.cve_estadia_estado AS INTEGER) as clave, ea.nombre_proyecto as proyecto,"
-                    + " ta.descripcion as documento, TO_CHAR(ee.fecha_alta, 'dd/mm/yyyy') as fecha, a.url as directorio,"
-                    + " COALESCE(ee.comentario, 'Sin Comentarios') as comentarios, e.descripcion as estado, ee.cve_estado_estadia "
+                    + " ta.descripcion as documento, CONVERT( VARCHAR, ee.fecha_alta, 103) as fecha, a.url as directorio,"
+                    + " ISNULL(ee.comentario, 'Sin Comentarios') as comentarios, e.descripcion as estado, ee.cve_estado_estadia "
                     + " FROM estadia_archivo ea"
                     + " LEFT JOIN estadia_estado ee on ee.cve_estadia_archivo=ea.cve_estadia_archivo"
                     + " INNER JOIN alumno_grupo as ag on ag.cve_alumno_grupo=ea.cve_alumno_grupo"
                     + " INNER JOIN tipo_archivo as ta on ta.cve_tipo_archivo=ea.tipo_archivo"
                     + " INNER JOIN estado_estadia e on e.cve_estado_estadia=ee.cve_estado_estadia"
                     + " INNER JOIN archivo a on ea.cve_archivo=a.cve_archivo"
-                    + " WHERE ag.cve_alumno="+cveAlumno+" and ee.activo='True'");
+                    + " WHERE ag.cve_alumno="+cveAlumno+" and ee.activo=1");
             
-            ArrayList<CustomHashMap> t_envio = siest.ejecutarConsulta("SELECT * from tipo_archivo ORDER BY cve_tipo_archivo LIMIT 2");
+            ArrayList<CustomHashMap> t_envio = siest.ejecutarConsulta("SELECT TOP (2) * from tipo_archivo ORDER BY cve_tipo_archivo");
             
-            ArrayList<CustomHashMap> asesor = siest.ejecutarConsulta("SELECT CONCAT(p.apellido_paterno,' ', p.apellido_materno,' ', p.nombre) as nombre_completo "
+            ArrayList<CustomHashMap> asesor = siest.ejecutarConsulta("SELECT (p.apellido_paterno+' '+ p.apellido_materno+' '+ p.nombre) as nombre_completo "
                      + "FROM persona p "
-                     + "INNER JOIN estadia_alumno ea on ea.cve_persona=p.cve_persona "
+                     + "INNER JOIN estadia_alumno ea on ea.cve_asesor=p.cve_persona "
                      + "INNER JOIN alumno_grupo ag on ea.cve_alumno_grupo=ag.cve_alumno_grupo "
                      + "WHERE ag.cve_alumno="+cveAlumno);
             String name_asesor =asesor.get(0).getString("nombre_completo");
              
-            boolean alt = false;
             
-            ArrayList<CustomHashMap> aceptacion = siest.ejecutarConsulta("SELECT CAST(count(*) AS INTEGER) as contar "
+            
+            
+            ArrayList<CustomHashMap> aceptacion = siest.ejecutarConsulta("SELECT count(*) as contar "
             + "FROM estadia_archivo ea "
             + "INNER JOIN estadia_alumno aa on ea.cve_alumno_grupo=aa.cve_alumno_grupo "
             + "INNER JOIN estadia_estado ee on ea.cve_estadia_archivo=ee.cve_estadia_archivo "
             + "INNER JOIN alumno_grupo ag on ea.cve_alumno_grupo=ag.cve_alumno_grupo "
-            + "WHERE cve_alumno="+cveAlumno+" AND tipo_archivo=3 AND ee.cve_estado_estadia=5 AND aa.numero_avance=3");
+            + "WHERE cve_alumno="+cveAlumno+" AND tipo_archivo=3 AND ee.cve_estado_estadia=4 AND aa.numero_avance >=2");
             int carta_aceptacion=aceptacion.get(0).getInt("contar");
+            
 %>
 <form id="estadia-form" class="tablaScroll" enctype="multipart/form-data"> 
     <fieldset>
@@ -144,6 +145,7 @@
                         </thead>
                         <tbody>
                             <%
+                            boolean alt = false;
                             int n = 0;
                             for(CustomHashMap e: entregas){
                             %>

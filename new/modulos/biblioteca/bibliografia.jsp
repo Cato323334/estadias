@@ -17,27 +17,24 @@ String like = parser.getStringParameter("like", null);
 String consulta = "";
 
 if(like != null || like!="" ){
-consulta = "(SELECT l.cve_libro, l.nombre,  l.codigo_barras, l.activo, COALESCE(l.isbn, 'No registrado')AS isbn, "
-        +"l.edicion, l.cantidad, l.stock, l.paginas, l.autor, l.fecha_alta, l.autor as autor, "
-        +"g.cve_genero, g.nombre as genero, e.cve_editorial, e.nombre as editorial, l.cve_genero "
-        +"FROM libro l "
+consulta = ("SELECT l.cve_libro, l.nombre,  l.codigo_barras, l.activo, COALESCE(l.isbn, 'No registrado')AS isbn, "
+        + "l.edicion, l.cantidad, l.stock, l.paginas, l.autor, l.fecha_alta, l.autor as autor, "
+        + "g.cve_genero, g.nombre as genero, e.cve_editorial, e.nombre as editorial, l.cve_genero "
+        + "FROM libro l "
         + "INNER JOIN libro_editorial e ON l.cve_editorial=e.cve_editorial "
-        +"INNER JOIN libro_genero g ON l.cve_genero=g.cve_genero "
-        +"WHERE TRANSLATE(l.nombre,'ÁÉÍÓÚáéíóú','AEIOUaeiou') iLIKE translate('%"+like+"%','ÁÉÍÓÚáéíóú','AEIOUaeiou') "
-        + "OR TRANSLATE(g.nombre,'ÁÉÍÓÚáéíóú','AEIOUaeiou') iLIKE translate('%"+like+"%','ÁÉÍÓÚáéíóú','AEIOUaeiou') "
-        + "OR TRANSLATE(l.autor,'ÁÉÍÓÚáéíóú','AEIOUaeiou') iLIKE translate('%"+like+"%','ÁÉÍÓÚáéíóú','AEIOUaeiou') "
-        + "ORDER BY l.nombre ASC)"
+        + "INNER JOIN libro_genero g ON l.cve_genero=g.cve_genero "
+        + "WHERE l.nombre LIKE '" + like + "' + '%' COLLATE MODERN_SPANISH_CI_AI AND g.nombre LIKE '" + like + "'  + '%' COLLATE MODERN_SPANISH_CI_AI AND l.autor LIKE '" + like + "'  + '%' COLLATE MODERN_SPANISH_CI_AI "
         + "UNION "
-        + "(SELECT ea.cve_archivo, ea.nombre_proyecto,'NA','True','NA',CAST(EXTRACT(YEAR FROM CURRENT_TIMESTAMP) AS VARCHAR), "
-        + "1,1,1,CONCAT(p.apellido_paterno,' ',p.apellido_materno,' ',p.nombre),ee.fecha_alta, "
-        + "CONCAT(p.apellido_paterno,' ',p.apellido_materno,' ',p.nombre),75,'Estadias',414,'UT de la Costa', 75"
+        + "SELECT ea.cve_archivo, ea.nombre_proyecto,'NA',1,'NA',CAST(YEAR(GETDATE()) as varchar(4)), "
+        + "1,1,1,(p.apellido_paterno+' '+p.apellido_materno+' '+p.nombre),ee.fecha_alta, "
+        + "(p.apellido_paterno+' '+p.apellido_materno+' '+p.nombre),75,'Estadias',414,'UT de la Costa', 75 "
         + "FROM estadia_archivo ea "
         + "INNER JOIN alumno_grupo ag on ea.cve_alumno_grupo=ag.cve_alumno_grupo "
         + "INNER JOIN alumno a on ag.cve_alumno=a.cve_alumno "
         + "INNER JOIN persona p on a.cve_persona=p.cve_persona "
         + "INNER JOIN estadia_estado ee on ea.cve_estadia_archivo=ee.cve_estadia_archivo "
-        + "WHERE cve_estado_estadia=5 and ea.tipo_archivo=1"
-        + "AND TRANSLATE(ea.nombre_proyecto,'ÁÉÍÓÚáéíóú','AEIOUaeiou') iLIKE translate('%"+like+"%','ÁÉÍÓÚáéíóú','AEIOUaeiou'))";
+        + "WHERE cve_estado_estadia=4 and ea.tipo_archivo=2 "
+        + "AND ea.nombre_proyecto LIKE '" + like + "' + '%' COLLATE MODERN_SPANISH_CI_AI ");
 }
 ArrayList<CustomHashMap> libros = new Datos().ejecutarConsulta(consulta);
 %>
@@ -70,15 +67,7 @@ ArrayList<CustomHashMap> libros = new Datos().ejecutarConsulta(consulta);
 }
 %>
 
-<script>
-//    $("#btn_modal").trigger("click");
-    
-//   $("#btn_modal").click(function (i) {
-//       var data = $(this).attr("data-val");
-//       var datos = data.split("-");
-//       
-//    });
-    
+<script>  
         $(".ver-libro").on("click", function () {
         var data = $(this).attr("data-val");
         var datos = data.split("-");

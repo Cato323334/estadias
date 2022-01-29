@@ -52,7 +52,6 @@
 	
 		function cambiaGrupo(cve_grupo){
 			$("#grupo").val(cve_grupo);
-			//alert(document.getElementById("grupo").value);
 			if(cve_grupo == 0){
 					$('#inscribir').submit();
 				}
@@ -79,7 +78,6 @@
 			var fechaParse = val.split("/");
 			var fechaParseada = fechaParse[2] + "-" + fechaParse[1] + "-" + fechaParse[0];
 			$("#fechaNacimiento").val(fechaParseada);
-			//alert(document.getElementById("fechaAsistencia").value);
 		}
 		
 			function cambiaCuatri(cuatri){
@@ -87,7 +85,6 @@
 			}
 			
 		function eAjax (idSub, modulo){
-			//$("div.submodulo").css({"display": "none"});
 			$("#submodulo" + idSub).css({"display": "block"});
 			$.ajax({
 				url: 'modulos/submodulos/' + modulo + '/submodulo' + idSub + '.jsp',
@@ -107,7 +104,6 @@
 <ul class="modo">
     <li><a id="s2" onclick="javascript:eAjax(2, 'escolares')" href="" rel="submodulo2">Calificaciones</a></li>
     <li><a id="s1" onclick="javascript:eAjax(1, 'escolares')" href="" rel="submodulo1">Materías</a></li>
-    <!--<li><a id="s3" onclick="javascript:eAjax(3, 'escolares')" href="" rel="submodulo3">Resultados por carrera</a></li> -->
     <li><a id="s4" onclick="javascript:eAjax(4, 'escolares')" href="" rel="submodulo4">Pagos por carrera</a></li>
     <li><a id="s5" onclick="javascript:eAjax(5, 'escolares')" href="" rel="submodulo5">No reinscritos</a></li>
     <li><a id="s6" onclick="javascript:eAjax(6, 'escolares')" href="" rel="submodulo6">Promedios</a></li>
@@ -132,7 +128,7 @@
 				ArrayList<CustomHashMap> carreras = siest.ejecutarConsulta("SELECT c.cve_carrera, c.nombre, ne.descripcion"
 																				 + " FROM carrera c"
 																				 + " INNER JOIN nivel_estudio ne ON ne.cve_nivel_estudio = c.cve_nivel_estudio"
-																				 + " WHERE c.activo = true"
+																				 + " WHERE c.activo = 1"
 																				 + " ORDER BY c.cve_nivel_estudio, c.nombre");
 				String nivelEstudio = "";
 				for(CustomHashMap carrera: carreras){

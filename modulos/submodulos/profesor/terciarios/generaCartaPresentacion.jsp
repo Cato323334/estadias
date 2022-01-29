@@ -19,26 +19,16 @@
         int tipoCarta = parser.getIntParameter("tipoCarta", 0);
         String empresa = parser.getStringParameter("empresa", "");
         String asesor = parser.getStringParameter("asesor", "");
-        String puesto = parser.getStringParameter("puesto", "");
-        
-        //contar el numero de cartas de estadia
-        ArrayList<CustomHashMap> existeCartaEstadia = siest.ejecutarConsulta("SELECT CAST(COUNT(ec.cve_carta_estadia) as INTEGER) as contar "
-                + "FROM estadia_carta ec "
-                + "INNER JOIN estadia_alumno ea on ec.cve_estadia_alumno=ea.cve_estadia_alumno "
-                + "INNER JOIN alumno_grupo ag on ea.cve_alumno_grupo=ag.cve_alumno_grupo "
-                + "WHERE ag.cve_alumno_grupo="+cveAlumno);
-        
-        String consulta="";
+        String puesto = parser.getStringParameter("puesto", "");      
         String nombre_asesor="";
-        int eca = existeCartaEstadia.get(0).getInt("contar");
-        if (eca>0){
-                consulta = ("SELECT * "
-                + "FROM carta_estadia ce "
-                + "INNER JOIN estadia_alumno ea on ce.cve_estadia_alumno=ea.cve_estadia_alumno "
-                + "INNER JOIN alumno_grupo ag on ea.cve_alumno_grupo=ag.cve_alumno_grupo "
-                + "WHERE ag.cve_alumno_grupo="+cveAlumno);
-        }else{
-                consulta = ("SELECT CONCAT(p.apellido_paterno,' ', p.apellido_materno,' ', p.nombre) as nombre_completo, "
+        
+        ArrayList<CustomHashMap> datosAsesor = siest.ejecutarConsulta("SELECT (p.apellido_paterno+' '+ p.apellido_materno+' '+ p.nombre) as asesor "
+                + "FROM persona p "
+                + "INNER JOIN estadia_alumno ea on p.cve_persona=ea.cve_asesor "
+                + "WHERE cve_alumno_grupo="+cveAlumno);
+                nombre_asesor = datosAsesor.get(0).getString("asesor");
+        
+        ArrayList<CustomHashMap> datosAlumno = siest.ejecutarConsulta("SELECT (p.apellido_paterno+' '+ p.apellido_materno+' '+ p.nombre) as nombre_completo, "
                 + "u.nombre_usuario as matricula, g.nombre as grupo, c.nombre as carrera, CAST(dm.nss AS VARCHAR) as seguro "
                 + "FROM persona p "
                 + "INNER JOIN usuario u on p.cve_persona=u.cve_persona "
@@ -49,18 +39,9 @@
                 + "INNER JOIN dato_medico dm on p.cve_persona=dm.cve_persona "
                 + "WHERE ag.cve_alumno_grupo="+cveAlumno);
         
-                ArrayList<CustomHashMap> datosAsesor = siest.ejecutarConsulta("SELECT CONCAT(p.apellido_paterno,' ', p.apellido_materno,' ', p.nombre) as asesor "
-                + "FROM persona p "
-                + "INNER JOIN estadia_alumno ea on p.cve_persona=ea.cve_persona "
-                + "WHERE cve_alumno_grupo="+cveAlumno);
-                nombre_asesor = datosAsesor.get(0).getString("asesor");
-        
-        }
-        
-        ArrayList<CustomHashMap> datosAlumno = siest.ejecutarConsulta(consulta);
-        
-        ArrayList<CustomHashMap> folio = siest.ejecutarConsulta("SELECT generafolioestadia("+cveAlumno+") as folio");
+        ArrayList<CustomHashMap> folio = siest.ejecutarConsulta("SELECT dbo.generafolioestadia ("+cveAlumno+") as folio");
         String numero_folio = folio.get(0).getString("folio");
+                
         
         
         

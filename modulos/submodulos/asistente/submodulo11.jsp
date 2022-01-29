@@ -30,23 +30,23 @@ if(sesion.getAttribute("usuario") == null){
    Datos siest = new Datos();
    
 
-              ArrayList<CustomHashMap> alumnosEstadia = siest.ejecutarConsulta("SELECT g.nombre as grupo, ag.activo, a.matricula, COALESCE(ea.cve_persona, 0) as asesor, "
-                      + "CONCAT(p.apellido_paterno,' ', p.apellido_materno,' ', p.nombre) as nombre_completo, CAST(ag.cve_alumno_grupo as integer) as clave, "
+              ArrayList<CustomHashMap> alumnosEstadia = siest.ejecutarConsulta("SELECT g.nombre as grupo, ag.activo, a.matricula, ISNULL(ea.cve_asesor, 0) as asesor, "
+                      + "(p.apellido_paterno+' '+ p.apellido_materno+' '+ p.nombre) as nombre_completo, CAST(ag.cve_alumno_grupo as integer) as clave, "
                       + "ea.cve_coordinador as coordinador "
                       + "FROM alumno a "
                       + "INNER JOIN alumno_grupo ag on a.cve_alumno=ag.cve_alumno "
                       + "INNER JOIN grupo g on ag.cve_grupo=g.cve_grupo "
                       + "INNER JOIN persona p on a.cve_persona=p.cve_persona "
                       + "LEFT JOIN estadia_alumno ea on ag.cve_alumno_grupo=ea.cve_alumno_grupo "
-                      + "WHERE ag.activo='True' and g.cve_grupo="+cveGrupo+" and (g.cve_cuatrimestre=15 or g.cve_cuatrimestre=21) and ag.cve_periodo="+periodo);
+                      + "WHERE ag.activo=1 and g.cve_grupo="+cveGrupo+" and (g.cve_cuatrimestre=15 or g.cve_cuatrimestre=21) and ag.cve_periodo="+periodo);
               
    if (!alumnosEstadia.isEmpty()) {
 
     ArrayList<CustomHashMap> asesores = siest.ejecutarConsulta("SELECT p.cve_persona, pf.cve_profesor, pf.cve_area, "
-            + "CONCAT(p.apellido_paterno,' ',p.apellido_materno,' ',p.nombre) as nombre_completo "
+            + "(p.apellido_paterno+' '+p.apellido_materno+' '+p.nombre) as nombre_completo "
             + "FROM profesor pf "
             + "INNER JOIN persona p on pf.cve_persona=p.cve_persona "
-            + "WHERE pf.activo='True' and p.nombre NOT iLIKE '%RECESO%' and p.nombre NOT iLIKE '%PRENSA%' "
+            + "WHERE pf.activo=1 and p.nombre NOT LIKE '%RECESO%' and p.nombre NOT LIKE '%PRENSA%' "
             + "ORDER BY cve_profesor ASC");
     
     int numero = 0;

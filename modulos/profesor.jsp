@@ -90,12 +90,10 @@
 	int cvePersona = 0;
 	try{
 		cvePersona = (Integer) sesion.getAttribute("cvePersona");
-		//cvePersona = (Integer) sesion.getAttribute("cvePersona");
 	}catch(Exception e){
 		cvePersona = usuario.getCvePersona();
 	}
 	 
-	// ArrayList<CustomHashMap> prorrogas 
 %>
 <script type="text/javascript" src="js/plugins/mode.js"></script>
 <script type="text/javascript" language="javascript">
@@ -105,13 +103,11 @@
 			$('ul.fichas > li').removeClass('selected');
 			$(this).addClass("selected");
 			cambiaGrupo($(this).attr("id"));
-			//event.preventDefault();
 			document.getElementById("myform").submit();
 		});		
 		
 		function cambiaGrupo(cve_carga){
 			$("#cveCambioGrupo").val(cve_carga);
-			//alert(cve_carga);
 		}	
 		
 		$("#tab").val(tab);
@@ -155,12 +151,10 @@
 			if(document.getElementById(id+"f").style.display=="none")
 			{
 				$("#"+id+"f").show("slow");
-				//document.getElementById(id).style.display = "block";
 			}
 			else
 			{
 				$("#"+id+"f").hide("slow");
-				//document.getElementById(id).style.display = "none";
 			}
 		}
 
@@ -230,21 +224,19 @@
 		   + " INNER JOIN materia m ON ch.cve_materia = m.cve_materia" 
 		   + " INNER JOIN profesor p ON ch.cve_profesor = p.cve_profesor"
 		   + " INNER JOIN persona per ON per.cve_persona = p.cve_persona"
-		   + " WHERE per.cve_persona = " + cvePersona + " AND ch.cve_periodo = " + usuario.getCvePeriodo() + " AND g.cve_periodo = " + usuario.getCvePeriodo() + " AND g.activo = true "
-		   + " AND m.calificacion != false "
- //+ "AND ch.activo = 1 "
+		   + " WHERE per.cve_persona = " + cvePersona + " AND ch.cve_periodo = " + usuario.getCvePeriodo() + " AND g.cve_periodo = " + usuario.getCvePeriodo() + " AND g.activo = 1 "
+		   + " AND m.calificacion != 0 "
 		   + " ORDER BY g.nombre, m.nombre, t.nombre");
 		for(CustomHashMap grupo: grupos){
 		%>
 			<li <%if(grupo.getInt("cve_carga_horaria")==cveCarga){%> class="selected" <%}%> id="<%=grupo.getInt("cve_carga_horaria")%>">
         		<dt>
-					<h1 id="<%//=grupo.getInt("cve_grupo")%>"><%=grupo.getString("grupo")%></h1>
-                    <h3 id="<%//=grupo.getInt("cve_materia")%>"><%=grupo.getString("materia")%> <%if(usuario.getRol().equals("Administrador"))out.print(grupo.getInt("cve_carga_horaria"));%></h3>
-                    <h2 id="<%//=grupo.getInt("cve_turno")%>"><%=grupo.getString("turno")%></h2> 
+					<h1 id="<%%>"><%=grupo.getString("grupo")%></h1>
+                    <h3 id="<%%>"><%=grupo.getString("materia")%> <%if(usuario.getRol().equals("Administrador"))out.print(grupo.getInt("cve_carga_horaria"));%></h3>
+                    <h2 id="<%%>"><%=grupo.getString("turno")%></h2> 
                                     
             	</dt>
           		<dd>
-                <!--<input type="radio" name="grupo" />-->
                 </dd>
             </li>
         <%

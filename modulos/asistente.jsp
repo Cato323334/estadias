@@ -137,12 +137,7 @@ if(sesion.getAttribute("usuario") == null){
    <p>Grupos creados para el periodo actual:</p>
     <ul class="fichas">
 		<%
-		/*	ArrayList<CustomHashMap> grupos = new Datos().ejecutarConsulta("SELECT g.cve_grupo, g.cve_carrera, g.consecutivo, t.nombre as turno, g.nombre as grupo" +
-				  " FROM grupo g "
- + "INNER JOIN turno t ON g.cve_turno = t.cve_turno "
- + "WHERE g.cve_carrera = " + usuario.getCveCarrera() + " AND g.cve_turno = " + usuario.getCveTurno() + " AND g.cve_periodo = " + usuario.getCvePeriodo() + " AND g.activo = 1"
-				  + " ORDER BY g.cve_cuatrimestre, g.consecutivo");
-                      */
+		
               ArrayList<CustomHashMap> grupos = siest.ejecutarConsulta("SELECT DISTINCT(g.cve_grupo), g.cve_carrera, g.consecutivo, "
                         + "t.nombre as turno, g.nombre as grupo "
                         + "FROM grupo g "

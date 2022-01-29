@@ -52,7 +52,6 @@
             $(this).addClass("selected");
             cambiaGrupo($(this).attr("id"));
             event.preventDefault();
-            //alert($("#cveGrupo").val());
             $("#datosDirector").submit();
         });
 
@@ -74,7 +73,6 @@
                 $('#submodulo' + tab).html('<b>Error</b>');
             }
         });
-        //$(".scrollable").scrollable();*/
     });
 
     function eAjax(idSub, modulo) {
@@ -120,8 +118,7 @@
 
 <ul class="fichas panelPestana" id="panelPestana-p1" style="<%if(!idPanel.equals("p1"))out.print("display:none");%>" >
     <%
-ArrayList<CustomHashMap> escolarizado = siest.ejecutarConsulta("SELECT cve_grupo, cve_carrera, consecutivo, turno, grupo "
-                + "FROM sp_getgruposdirector("+cveDirector+", "+usuario.getCvePeriodo()+", 1, 1)");
+ArrayList<CustomHashMap> escolarizado = siest.ejecutarConsulta("EXEC sp_getGruposPanelDirector "+cveDirector+", "+usuario.getCvePeriodo()+",1,1;");
             for(CustomHashMap grupo: escolarizado){
     %>
     <li <%if(grupo.getInt("cve_grupo") == cveGrupo){%>class="selected"<%}%> id="<%=grupo.getInt("cve_grupo")%>">
@@ -137,8 +134,7 @@ ArrayList<CustomHashMap> escolarizado = siest.ejecutarConsulta("SELECT cve_grupo
 
 <ul class="fichas panelPestana" id="panelPestana-p2" style="<%if(!idPanel.equals("p2"))out.print("display:none");%>">
     <%
-            ArrayList<CustomHashMap> despresurizado = siest.ejecutarConsulta("SELECT cve_grupo, cve_carrera, consecutivo, turno, grupo "
-                + "FROM sp_getgruposdirector("+cveDirector+", "+usuario.getCvePeriodo()+", 1, 2)");
+            ArrayList<CustomHashMap> despresurizado = siest.ejecutarConsulta("EXEC sp_getGruposPanelDirector "+cveDirector+", "+usuario.getCvePeriodo()+",1,2;");
             for(CustomHashMap grupo: despresurizado){
     %>
     <li <%if(grupo.getInt("cve_grupo") == cveGrupo){%>class="selected"<%}%> id="<%=grupo.getInt("cve_grupo")%>">
@@ -153,8 +149,7 @@ ArrayList<CustomHashMap> escolarizado = siest.ejecutarConsulta("SELECT cve_grupo
 </ul> 
 <ul class="fichas panelPestana" id="panelPestana-p3" style="<%if(!idPanel.equals("p3"))out.print("display:none");%>">
     <%
-            ArrayList<CustomHashMap> ingenieria = siest.ejecutarConsulta("SELECT cve_grupo, cve_carrera, consecutivo, turno, grupo "
-                + "FROM sp_getgruposdirector("+cveDirector+", "+usuario.getCvePeriodo()+", 2,0)");
+            ArrayList<CustomHashMap> ingenieria = siest.ejecutarConsulta("EXEC sp_getGruposPanelDirector "+cveDirector+", "+usuario.getCvePeriodo()+",2,0;");
             for(CustomHashMap grupo: ingenieria){
     %>
     <li <%if(grupo.getInt("cve_grupo") == cveGrupo){%>class="selected"<%}%> id="<%=grupo.getInt("cve_grupo")%>">

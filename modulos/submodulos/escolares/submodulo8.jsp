@@ -82,7 +82,7 @@
                 <%
                     
                     ArrayList<CustomHashMap> alumnosEstadia = siest.ejecutarConsulta("SELECT a.matricula, ea.nombre_proyecto, ta.descripcion as documento, ta.cve_tipo_archivo as tipo, g.nombre as grupo, c.nombre as carrera, "
-                      + "CONCAT(p.apellido_paterno,' ', p.apellido_materno,' ', p.nombre) as nombre_completo, ea.cve_estadia_archivo as ea, ee.cve_estadia_estado as clave, "
+                      + "(p.apellido_paterno+' '+p.apellido_materno+' '+p.nombre) as nombre_completo, ea.cve_estadia_archivo as ea, ee.cve_estadia_estado as clave, "
                       + "ea.cve_estadia_archivo as cve_estadia, ar.url as directorio, ee.cve_estado_estadia, es.descripcion as status, ag.cve_alumno_grupo as agr  "
                       + "FROM alumno a "
                       + "INNER JOIN alumno_grupo ag on a.cve_alumno=ag.cve_alumno "
@@ -94,7 +94,7 @@
                       + "INNER JOIN archivo ar on ea.cve_archivo=ar.cve_archivo "
                       + "INNER JOIN carrera c on g.cve_carrera=c.cve_carrera "
                       + "INNER JOIN estado_estadia es on ee.cve_estado_estadia=es.cve_estado_estadia "
-                      + "WHERE ag.activo='True' and (ee.cve_estado_estadia=4 or ee.cve_estado_estadia=5) and ee.activo='True' and ag.cve_periodo="+periodo+" "
+                      + "WHERE ag.activo=1 and (ee.cve_estado_estadia=3 or ee.cve_estado_estadia=4) and ee.activo=1 and ag.cve_periodo="+periodo+" "
                       + "ORDER BY ee.cve_estado_estadia asc, carrera asc, grupo asc, nombre_completo asc ");
                     
                     int n = 0;
@@ -111,8 +111,8 @@
                     <td ><%=a.getString("nombre_proyecto")%></td>
                     <td><%=a.getString("documento")%></td>
                     <td><a target="_blank" href="/dexter/document/estadias/<%=a.getString("directorio")%>">Descargar</a></td>
-                    <td><input type="button" class="triumph" data-val="1-<%=a.getInt("cve_estadia")%>-<%=a.getInt("clave")%>-<%=cvePersona%>-<%=a.getInt("agr")%>-<%=a.getInt("tipo")%>" value="Aprobar" <%if (a.getInt("cve_estado_estadia")!=4)out.print("hidden");%>></td>
-                    <td><input type="button" class="triumph" data-val="2-<%=a.getInt("cve_estadia")%>-<%=a.getInt("clave")%>-<%=cvePersona%>-<%=a.getInt("agr")%>-<%=a.getInt("tipo")%>" value="Rechazar" <%if (a.getInt("cve_estado_estadia")!=4)out.print("hidden");%>></td>
+                    <td><input type="button" class="triumph" data-val="1-<%=a.getInt("cve_estadia")%>-<%=a.getInt("clave")%>-<%=cvePersona%>-<%=a.getInt("agr")%>-<%=a.getInt("tipo")%>" value="Aprobar" <%if (a.getInt("cve_estado_estadia")!=3)out.print("hidden");%>></td>
+                    <td><input type="button" class="triumph" data-val="2-<%=a.getInt("cve_estadia")%>-<%=a.getInt("clave")%>-<%=cvePersona%>-<%=a.getInt("agr")%>-<%=a.getInt("tipo")%>" value="Rechazar" <%if (a.getInt("cve_estado_estadia")!=3)out.print("hidden");%>></td>
                 </tr> 
                 <%
                     }
@@ -163,11 +163,11 @@
         if (eleccion==='1') {
             var p = confirm("Esta a punto de validar este envío, ¿Continuar?");
             comentario = "Sin Comentarios";
-            eleccion = 5;
+            eleccion = 4;
         }else{
             comentario = prompt("Ingrese la razón de su cancelación");
             var p = confirm("Esta a punto de rechazar este envío, ¿Continuar?");
-            eleccion = 9;
+            eleccion = 7;
         }
         
         var parametros = {cveEstadia, comentario, cveEstadiaEstado, eleccion, cvePersona, cveAlumnoGrupo,cveTipoArchivo,action: 'valida-asesor'};

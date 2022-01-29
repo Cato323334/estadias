@@ -47,7 +47,6 @@
 		
 		function cambiaGrupo(cveGrupo){
 			$("#cveGrupo").val(cveGrupo);
-			//alert(cve_carga);
 		}	
 		
 		$("#tab").val(tab);
@@ -90,7 +89,7 @@
 	 + " INNER JOIN periodo p ON p.cve_periodo = g.cve_periodo"
 	 + " INNER JOIN alumno a ON a.cve_alumno = ag.cve_alumno"
 	 + " WHERE a.cve_persona = " + cvePersona 
-                + " AND ag.activo = true AND p.activo = true "
+                + " AND ag.activo = 1 AND p.activo = 1 "
          + " AND g.cve_periodo <= "+(Configuracion.PERIODO_ACTIVO)
 	 + " ORDER BY p.fecha_inicio DESC");
 %>

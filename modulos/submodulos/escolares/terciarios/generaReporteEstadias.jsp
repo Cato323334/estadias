@@ -22,14 +22,14 @@
             periodo = usuario.getCvePeriodo();
         }
         
-        ArrayList<CustomHashMap> fechas_periodo = siest.ejecutarConsulta("SELECT TO_CHAR(fecha_inicio, 'dd/mm/yyyy') as inicio, TO_CHAR(fecha_fin, 'dd/mm/yyyy') as final "
+        ArrayList<CustomHashMap> fechas_periodo = siest.ejecutarConsulta("SELECT CONVERT(VARCHAR(10),fecha_inicio, 103) as inicio, CONVERT(VARCHAR(10),fecha_fin, 103) as final "
                 + "FROM periodo "
                 + "WHERE cve_periodo="+periodo);
         String fechaInicio = fechas_periodo.get(0).getString("inicio");
         String fechaFin = fechas_periodo.get(0).getString("final");
 
         ArrayList<CustomHashMap> alumnosEstadia = siest.ejecutarConsulta("SELECT a.matricula, ea.nombre_proyecto, ta.descripcion as documento, g.nombre as grupo, c.nombre as carrera, "
-                      + "CONCAT(p.apellido_paterno,' ', p.apellido_materno,' ', p.nombre) as nombre_completo "
+                      + "(p.apellido_paterno+' '+ p.apellido_materno+' '+ p.nombre) as nombre_completo "
                       + "FROM alumno a "
                       + "INNER JOIN alumno_grupo ag on a.cve_alumno=ag.cve_alumno "
                       + "INNER JOIN estadia_archivo ea on ag.cve_alumno_grupo=ea.cve_alumno_grupo "
@@ -40,7 +40,7 @@
                       + "INNER JOIN archivo ar on ea.cve_archivo=ar.cve_archivo "
                       + "INNER JOIN carrera c on g.cve_carrera=c.cve_carrera "
                       + "INNER JOIN estado_estadia es on ee.cve_estado_estadia=es.cve_estado_estadia "
-                      + "WHERE ag.activo='True' and ee.cve_estado_estadia=5 and ee.activo='True' and ag.cve_periodo=41 and (tipo_archivo=1 or tipo_archivo=2) "
+                      + "WHERE ag.activo=1 and ee.cve_estado_estadia=7 and ee.activo=1 and ag.cve_periodo=41 and (tipo_archivo=1 or tipo_archivo=2) "
                       + "ORDER BY ee.cve_estado_estadia asc, carrera asc, grupo asc, nombre_completo asc ");
 %>
 <html lang="es">

@@ -36,34 +36,33 @@ else{
 	}
 
         int cveGrupo = (Integer) sesion.getAttribute("cveGrupo");
-//int periodo = usuario.getCvePeriodo();
         Datos siest = new Datos();
 
 
-       ArrayList<CustomHashMap> coordinador= siest.ejecutarConsulta("SELECT CAST(COUNT(*) AS INTEGER) as contar "
+       ArrayList<CustomHashMap> coordinador= siest.ejecutarConsulta("SELECT COUNT(*) AS contar "
             + "FROM estadia_alumno "
-            + "WHERE activo='True' and cve_coordinador="+cvePersona);
+            + "WHERE activo=1 and cve_coordinador="+cvePersona);
             int concordinador = coordinador.get(0).getInt("contar");
 
 
         if (concordinador>0) {
 
-              ArrayList<CustomHashMap> alumnosEstadia = siest.ejecutarConsulta("SELECT g.nombre as grupo, ag.activo, a.matricula, COALESCE(ea.cve_persona, 0) as asesor, "
-                      + "CONCAT(p.apellido_paterno,' ', p.apellido_materno,' ', p.nombre) as nombre_completo, CAST(ag.cve_alumno_grupo as integer) as clave "
+              ArrayList<CustomHashMap> alumnosEstadia = siest.ejecutarConsulta("SELECT g.nombre as grupo, ag.activo, a.matricula, ISNULL(ea.cve_asesor, 0) as asesor, "
+                      + "(p.apellido_paterno+' '+ p.apellido_materno+' '+ p.nombre) as nombre_completo, CAST(ag.cve_alumno_grupo as integer) as clave "
                       + "FROM alumno a "
                       + "INNER JOIN alumno_grupo ag on a.cve_alumno=ag.cve_alumno "
                       + "INNER JOIN grupo g on ag.cve_grupo=g.cve_grupo "
                       + "INNER JOIN persona p on a.cve_persona=p.cve_persona "
                       + "LEFT JOIN estadia_alumno ea on ag.cve_alumno_grupo=ea.cve_alumno_grupo "
-                      + "WHERE ag.activo='True' and ea.cve_coordinador="+cvePersona);
+                      + "WHERE ag.activo=1 and ea.cve_coordinador="+cvePersona);
               
    if (!alumnosEstadia.isEmpty()) {
 
     ArrayList<CustomHashMap> asesores = siest.ejecutarConsulta("SELECT p.cve_persona, pf.cve_profesor, pf.cve_area, "
-            + "CONCAT(p.apellido_paterno,' ',p.apellido_materno,' ',p.nombre) as nombre_completo "
+            + "(p.apellido_paterno+' '+p.apellido_materno+' '+p.nombre) as nombre_completo "
             + "FROM profesor pf "
             + "INNER JOIN persona p on pf.cve_persona=p.cve_persona "
-            + "WHERE pf.activo='True' and p.nombre NOT iLIKE '%RECESO%' and p.nombre NOT iLIKE '%PRENSA%' "
+            + "WHERE pf.activo=1 and p.nombre NOT LIKE '%RECESO%' and p.nombre NOT LIKE '%PRENSA%' "
             + "ORDER BY cve_profesor ASC");
     
     int numero = 0;
@@ -117,7 +116,7 @@ else{
         var datos = data.split("-");
         var cveCoordinador = datos[0];
         var cveAlumno = datos[1];
-         var parametros = {cveCoordinador, cveAlumno, campo:'cve_persona',action: 'alta-coordinador'
+         var parametros = {cveCoordinador, cveAlumno, campo:'cve_asesor',action: 'alta-coordinador'
            };
         if (e) {
             $.post("estadias",parametros, res).fail(error);
@@ -127,7 +126,7 @@ else{
                     mensaje("El alumno no está logeado"); //aplicamos la respuesta dependiendo del resultado
                 }else if (datos[0] === "203") {
                    var p = confirm("Este alumno ya cuenta con un Asesor asignado, ¿Actualizar asesor?");
-                       var parametres = { cveCoordinador, cveAlumno, campo:'cve_persona', action: 'actualiza-coordinador'};
+                       var parametres = { cveCoordinador, cveAlumno, campo:'cve_asesor', action: 'actualiza-coordinador'};
                         if(p){   
                             $.post("estadias",parametres, res).fail(error);
                                 function res(dats) {
@@ -143,13 +142,10 @@ else{
                         }else{
                             mensaje("Reasignación cancelada");   
                         }      
-//                 location.href = "?modulo=23&tab=14";
                 }else if (datos[0] === "202") {
                    mensaje("Los datos ingresados son incorrectos");
-//                   location.href = "?modulo=23&tab=14";
                 }else if (datos[0] === "201") { 
-                   mensaje("Asesor asignado");
-//                   location.href = "?modulo=23&tab=14"; //redireccionamos a una pestana en especifico
+                   mensaje("Asesor asignado"); //redireccionamos a una pestana en especifico
                 }else{
                     console.log("Algo salió feo :( -- " + data); //en caso de error, enviamos el mensaje de error y la causa de este.
                 }

@@ -42,7 +42,7 @@ else{
 
         <%
             ArrayList<CustomHashMap> alumnosEstadia = siest.ejecutarConsulta("SELECT a.matricula, ea.nombre_proyecto, ta.descripcion as documento, g.nombre as grupo, c.nombre as carrera, "
-                      + "CONCAT(p.apellido_paterno,' ', p.apellido_materno,' ', p.nombre) as nombre_completo, ea.cve_estadia_archivo as ea, ee.cve_estadia_estado as clave, ee.cve_estado_estadia, "
+                      + "(p.apellido_paterno+' '+ p.apellido_materno+' '+ p.nombre) as nombre_completo, ea.cve_estadia_archivo as ea, ee.cve_estadia_estado as clave, ee.cve_estado_estadia, "
                       + "ea.cve_estadia_archivo as cve_estadia, ar.url as directorio, es.descripcion as status, ag.cve_alumno_grupo as agr "
                       + "FROM alumno a "
                       + "INNER JOIN alumno_grupo ag on a.cve_alumno=ag.cve_alumno "
@@ -55,9 +55,9 @@ else{
                       + "INNER JOIN archivo ar on ea.cve_archivo=ar.cve_archivo "
                       + "INNER JOIN carrera c on g.cve_carrera=c.cve_carrera "
                       + "INNER JOIN estado_estadia es on ee.cve_estado_estadia=es.cve_estado_estadia "
-                      + "WHERE ag.activo='True' and (ee.cve_estado_estadia BETWEEN 1 and 5)and ee.activo='True' and aa.cve_persona="+cvePersona+" and ag.cve_periodo="+periodo+" "
+                      + "WHERE ag.activo=1 and (ee.cve_estado_estadia BETWEEN 1 and 4)and ee.activo=1 and aa.cve_asesor="+cvePersona+" and ag.cve_periodo="+periodo+" "
                       + "ORDER BY ee.cve_estado_estadia asc, carrera asc, grupo asc, nombre_completo asc ");
-                    
+
                      int n = 0;
                      boolean alt = false;
                     if (!alumnosEstadia.isEmpty()) {
@@ -70,7 +70,6 @@ else{
                 <tr>
                     <th>No.</th>
                     <th>Nombre Alumno</th>
-                    <!--<th>Matricula</th>-->
                     <th>Grupo</th>
                     <th>Carrera</th>
                     <th>Nombre Proyecto</th>
@@ -88,7 +87,6 @@ else{
                 <tr class="<%out.print(alt == true?"alt":""); alt = !alt;%>">
                     <td class="index"><%=++n%></td>
                     <td><%=a.getString("nombre_completo")%></td>
-       <!--//              <td><%//=a.getString("matricula")%></td>-->
                     <td><%=a.getString("grupo")%></td>
                     <td><%=a.getString("carrera")%></td>
                     <td ><textarea id="proyecto<%=a.getInt("cve_estadia")%>" name="proyecto"  rows="1" cols="50" maxlength="50"  style="resize:none;" required <%if (a.getInt("cve_estado_estadia")!=1)out.print("disabled");%>><%=a.getString("nombre_proyecto")%></textarea></td>
@@ -105,13 +103,19 @@ else{
     </fieldset>
 </form>
 <%
-                    }
-                } 
+                    }else{
+
+%>                
+<div class="error" style="display:block; padding-left: 35px;">
+        Ningún alumno ha realizado entregas aun...
+</div>
+ <%
             }
-  
+        }
+    }
 %>
 
-<script>   
+<script> 
     $(".validaEstadia").click(function (e) {
         e.preventDefault();
         var data = $(this).attr("data-val");
@@ -127,12 +131,13 @@ else{
         if (eleccion==='1') {
             var p = confirm("Esta a punto de validar este envío, ¿Continuar?");
             comentario = "Sin Comentarios";
-            eleccion = 3;
+            eleccion = 2;
         }else{
             comentario = prompt("Ingrese la razón de su cancelación");
             var p = confirm("Esta a punto de rechazar este envío, ¿Continuar?");
-            eleccion = 7;
+            eleccion = 5;
         } 
+        
         var parametros = {cveEstadia, comentario, cveEstadiaEstado, eleccion, cvePersona, cveAlumnoGrupo, proyecto, cveEarchivo, action: 'valida-asesor'};
         
         if (p) {

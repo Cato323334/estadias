@@ -40,7 +40,7 @@ if(sesion.getAttribute("usuario") == null){
         
         ArrayList<CustomHashMap> consulta = siest.ejecutarConsulta("SELECT cve_division as clave "
                 + "FROM director_division "
-                + "WHERE cve_director="+cvePersona+" and activo='True' and cve_turno=1 ");
+                + "WHERE cve_director="+cvePersona+" and activo=1 and cve_turno=1 ");
                 int claveDivision = consulta.get(0).getInt("clave");
   
         
@@ -68,8 +68,8 @@ if(sesion.getAttribute("usuario") == null){
             <tbody>
                                <%
                     
-                    ArrayList<CustomHashMap> alumnosEstadia = siest.ejecutarConsulta("SELECT g.nombre as grupo, ag.activo, a.matricula, COALESCE(ea.cve_coordinador, 0) as coordinador, "
-                      + "CONCAT(p.apellido_paterno,' ', p.apellido_materno,' ', p.nombre) as nombre_completo, CAST(ag.cve_alumno_grupo as integer) as clave, COALESCE(na.cve_numero_avance_estadia,0) as avances "
+                    ArrayList<CustomHashMap> alumnosEstadia = siest.ejecutarConsulta("SELECT g.nombre as grupo, ag.activo, a.matricula, ISNULL(ea.cve_coordinador, 0) as coordinador, "
+                      + "(p.apellido_paterno+' '+ p.apellido_materno+' '+ p.nombre) as nombre_completo, CAST(ag.cve_alumno_grupo as integer) as clave, ISNULL(na.cve_numero_avance_estadia,0) as avances "
                       + "FROM alumno a "
                       + "INNER JOIN alumno_grupo ag on a.cve_alumno=ag.cve_alumno "
                       + "INNER JOIN grupo g on ag.cve_grupo=g.cve_grupo "
@@ -77,13 +77,13 @@ if(sesion.getAttribute("usuario") == null){
                       + "INNER JOIN carrera c on g.cve_carrera=c.cve_carrera "
                       + "LEFT JOIN estadia_alumno ea on ag.cve_alumno_grupo=ea.cve_alumno_grupo "
                       + "LEFT JOIN numero_avance_estadia na on ea.numero_avance=na.cve_numero_avance_estadia "
-                      + "WHERE ag.activo='True' and (g.cve_cuatrimestre=15 or g.cve_cuatrimestre=21) and c.cve_division="+claveDivision+" and ag.cve_periodo="+periodo);
+                      + "WHERE ag.activo=1 and (g.cve_cuatrimestre=15 or g.cve_cuatrimestre=21) and c.cve_division="+claveDivision+" and ag.cve_periodo="+periodo);
                     
                     ArrayList<CustomHashMap> asesores = siest.ejecutarConsulta("SELECT p.cve_persona, pf.cve_profesor, pf.cve_area, "
-                    + "CONCAT(p.apellido_paterno,' ',p.apellido_materno,' ',p.nombre) as nombre_completo "
+                    + "(p.apellido_paterno+' '+p.apellido_materno+' '+p.nombre) as nombre_completo "
                     + "FROM profesor pf "
                     + "INNER JOIN persona p on pf.cve_persona=p.cve_persona "
-                    + "WHERE pf.activo='True' and p.nombre NOT iLIKE '%RECESO%' and p.nombre NOT iLIKE '%PRENSA%' "
+                    + "WHERE pf.activo=1 and p.nombre NOT LIKE '%RECESO%' and p.nombre NOT LIKE '%PRENSA%' "
                     + "ORDER BY cve_profesor ASC");
                     
                     int n = 0;
